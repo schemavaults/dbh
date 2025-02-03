@@ -3,19 +3,18 @@
   "version": "0.3.0",
   "description": "Package for managing connection to a MongoDB instance",
   "license": "UNLICENSED",
-  "private": true,
+  "private": false,
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/schemavaults/schemavaults.git",
-    "directory": "packages/dbh"
+    "type": "git",
+    "url": "https://github.com/schemavaults/dbh.git"
   },
   "dependencies": {
     "mongodb": "6.6.2",
-    "@schemavaults/serde": "workspace:*"
+    "@schemavaults/serde": "0.3.0"
   },
   "devDependencies": {
     "typescript": "5.7.2",
-    "bun-types": "1.1.42"
+    "bun-types": "1.2.1"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json && bun build ./src/index.ts --outdir ./dist --target bun",
@@ -24,5 +23,9 @@
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module"
+  "type": "module",
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "packageManager": "bun@1.2.1"
 }
