@@ -2,3 +2,10 @@ dist/
 node_modules/
 .turbo/
 **/.DS_Store
+
+.env
+.env.development
+.env.test
+.env.staging
+.env.local
+.env.production
