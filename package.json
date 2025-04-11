@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Package for managing connection to a MongoDB instance",
   "license": "UNLICENSED",
   "private": false,
@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "mongodb": "6.6.2",
-    "@schemavaults/serde": "0.3.1"
+    "@schemavaults/serde": "0.3.2"
   },
   "devDependencies": {
     "typescript": "5.8.3",
