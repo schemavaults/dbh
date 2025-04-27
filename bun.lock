@@ -4,7 +4,7 @@
     "": {
       "name": "@schemavaults/dbh",
       "dependencies": {
-        "@schemavaults/serde": "0.3.2",
+        "@schemavaults/serde": "0.3.5",
         "mongodb": "6.6.2",
       },
       "devDependencies": {
@@ -18,15 +18,13 @@
 
     "@schemavaults/app-definitions": ["@schemavaults/app-definitions@0.4.0", "https://npm.pkg.github.com/download/@schemavaults/app-definitions/0.4.0/db574364142fb8227c9fe0bb242b24e1d841149b", { "dependencies": { "zod": "3.23.8" } }, "sha512-mKDPXi/rY/+r4j3/J9lbsa5js4X9gNqs8ZXuaqXKjQAYha5qmgRaYvQ5bVS9N3qZEMWmCIxOzrbtZCLaIy5JSg=="],
 
-    "@schemavaults/deserializers": ["@schemavaults/deserializers@0.3.2", "https://npm.pkg.github.com/download/@schemavaults/deserializers/0.3.2/3e40249cc7ed62e14b3c7d97fbc96d6ac5a56f54", { "dependencies": { "@schemavaults/schemas": "0.5.13", "@schemavaults/serialized-data-storage-primitives": "0.3.3", "zod": "3.23.8" } }, "sha512-DeL/D9Hi98vr4274Ho/pjz8vA1FKoyc1MHw9RRFPnJbGe8fG+N2CYNcYpCpR/Ge82VXD4cIFrhDMyxZjuLxiqA=="],
+    "@schemavaults/deserializers": ["@schemavaults/deserializers@0.3.5", "https://npm.pkg.github.com/download/@schemavaults/deserializers/0.3.5/a0205095a72f7a98f05dbeda1a18b85b40b0f683", { "dependencies": { "@schemavaults/schemas": "0.6.1", "zod": "3.23.8" } }, "sha512-6D5HqdUZtFLQbPCpqaiJevhzpj2fD9UdNUt96M37UX7eJoKm8Q/6pG7fPzYQh6L0Zb8tuiux0spwJA5LHFTKIA=="],
 
-    "@schemavaults/schemas": ["@schemavaults/schemas@0.5.13", "https://npm.pkg.github.com/download/@schemavaults/schemas/0.5.13/866c720c63096593f64fa76423b33a6d137efbe8", { "dependencies": { "@schemavaults/storage-regions": "0.3.0", "uuid": "^9.0.1", "zod": "3.23.8" } }, "sha512-nCKgPTAMLqbql+PCf81J6ahXa0n9tz4JFxw3M8fQ006AK/cV50N6I7YTbPW3J1cLI3BNJah3tHK7jAIyo+IW+g=="],
+    "@schemavaults/schemas": ["@schemavaults/schemas@0.6.1", "https://npm.pkg.github.com/download/@schemavaults/schemas/0.6.1/b11466df7ce90de5d30a622f6a385ece00ce665a", { "dependencies": { "@schemavaults/storage-regions": "0.3.0", "uuid": "^9.0.1", "zod": "3.23.8" } }, "sha512-dECvtwcv6rh79wBHBejrztYzsfYL2+tDhRR3rl0cTKLxgqc/oFPW0pTIBmL6JwB/6epbl3FPMMKJliedlHbEZw=="],
 
-    "@schemavaults/serde": ["@schemavaults/serde@0.3.2", "https://npm.pkg.github.com/download/@schemavaults/serde/0.3.2/b016c56bc245b8a88e44873bfe5b725d2e867c08", { "dependencies": { "@schemavaults/deserializers": "0.3.2", "@schemavaults/schemas": "0.5.13", "@schemavaults/serialized-data-storage-primitives": "0.3.3", "@schemavaults/serializers": "0.3.2", "zod": "3.23.8" } }, "sha512-5UnM+6Upc+z9knsOnwCD0+4z6zXnZObJrYTS+Qk/xRmocm8o8w/H/yy6PLZofmd+ay+iW1FWFs3F9OlheKWiQg=="],
+    "@schemavaults/serde": ["@schemavaults/serde@0.3.5", "https://npm.pkg.github.com/download/@schemavaults/serde/0.3.5/fbf7fd4af6aa704c0ca25d867d2ad8230288cbe2", { "dependencies": { "@schemavaults/deserializers": "0.3.5", "@schemavaults/schemas": "0.6.1", "@schemavaults/serializers": "0.3.4", "zod": "3.23.8" } }, "sha512-QvdSo9nfrepiBn5rFZF1M1QWWGKgIPGcg2fnOapLE8vwnCd07omxnPGbB9O/W3GUOtTg1EP1KX+lj4JYFeAGJA=="],
 
-    "@schemavaults/serialized-data-storage-primitives": ["@schemavaults/serialized-data-storage-primitives@0.3.3", "https://npm.pkg.github.com/download/@schemavaults/serialized-data-storage-primitives/0.3.3/bab9a27447b16d65d061941dfe048d7dcff291b6", { "dependencies": { "@schemavaults/schemas": "0.5.13", "zod": "3.23.8" } }, "sha512-2bV6e6c07ohDASQiySP3RqXqvXEbxfz4iGkudvp5MqZYgLvvrptF8nVbJ4tLCRNtIgQJ5rjhKy8BLoctmooD7Q=="],
-
-    "@schemavaults/serializers": ["@schemavaults/serializers@0.3.2", "https://npm.pkg.github.com/download/@schemavaults/serializers/0.3.2/42864d4a640cff2d2d0014875eb288b82ceca32e", { "dependencies": { "@schemavaults/schemas": "0.5.13", "@schemavaults/serialized-data-storage-primitives": "0.3.3", "zod": "3.23.8" } }, "sha512-m8hUIlmmcyD8D+7oBuhKttkukO1A4eU/lr+1iWdRo5uUQ387LnlKUAFC84XprCREDg0EhOGma5aXb9B2wk9kbg=="],
+    "@schemavaults/serializers": ["@schemavaults/serializers@0.3.4", "https://npm.pkg.github.com/download/@schemavaults/serializers/0.3.4/fbfbe59b4e7477b8cb1529ea558282f45b1580a7", { "dependencies": { "@schemavaults/schemas": "0.6.1", "zod": "3.23.8" } }, "sha512-cLYzWRMrgL9NIzK2EcBmUZdVSnT3GJUT8su3jqs6MXik70vB94QS9K5YxqKyL+k12bUEfLVLd4NBieyn4CSf+g=="],
 
     "@schemavaults/storage-regions": ["@schemavaults/storage-regions@0.3.0", "https://npm.pkg.github.com/download/@schemavaults/storage-regions/0.3.0/1a04952253bbad4f1b29fdb1c92386e05d3164d4", { "dependencies": { "@schemavaults/app-definitions": "0.4.0", "zod": "3.23.8" } }, "sha512-r1YRzxO41fbBdtvo+FhGxRJrcvAzItxV6nAASOToT1qODVidAkOsT+s7LCoOSHzrRlV02uG0DF1d3agogLm5qQ=="],
 
