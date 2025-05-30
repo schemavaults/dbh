@@ -154,4 +154,9 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
   public get db(): Kysely<KyselyTablesType> {
     return this.kysely_db;
   }
+
+  public async destroy(): Promise<void> {
+    await this.kysely_db.destroy();
+    return;
+  }
 }
