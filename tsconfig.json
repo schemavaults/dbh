@@ -8,11 +8,16 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "declaration": true,
-    "emitDeclarationOnly": true,
+    "emitDeclarationOnly": false,
     "sourceMap": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
-    "types": ["bun-types"]
+    "strictNullChecks": true,
+    "types": ["bun-types"],
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "baseUrl": "."
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
