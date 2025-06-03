@@ -47,7 +47,7 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
     );
 
     if (!POSTGRES_URL) {
-      throw new Error("POSTGRES_URL is not set");
+      throw new Error("POSTGRES_URL is not set in environment variables!");
     } else {
       if (this.env !== "production") {
         console.log(
@@ -57,7 +57,7 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
     }
 
     if (!POSTGRES_HOST) {
-      throw new Error("POSTGRES_HOST is not set");
+      throw new Error("POSTGRES_HOST is not set in environment variables!");
     } else {
       if (this.env !== "production") {
         console.log(
@@ -87,22 +87,29 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       );
     }
 
-    if (this.env !== "production") {
-      console.log(
-        "[SchemaVaultsPostgresNeonProxyAdapter] Initializing SchemaVaults x Kysely auth database adapter...",
+    const POSTGRES_USER = SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
+      process.env.POSTGRES_USER,
+    );
+    if (!POSTGRES_USER) {
+      throw new Error("POSTGRES_USER is not defined in environment variables!");
+    }
+
+    const POSTGRES_PASSWORD =
+      SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
+        process.env.POSTGRES_PASSWORD,
+      );
+    if (!POSTGRES_PASSWORD) {
+      throw new Error(
+        "POSTGRES_PASSWORD is not defined in environment variables!",
       );
     }
 
     const kysely_neon_dialect_config: NeonDialectConfig = {
       connectionString: POSTGRES_URL,
       host: POSTGRES_HOST,
-      password: SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
-        process.env.POSTGRES_PASSWORD,
-      ),
+      user: POSTGRES_USER,
+      password: POSTGRES_PASSWORD,
       database: POSTGRES_DATABASE,
-      user: SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
-        process.env.POSTGRES_USER,
-      ),
       useSecureWebSocket: (this.env === "production") satisfies boolean,
       port: POSTGRES_PORT,
       wsProxy: (pg_host: string): string => {
@@ -130,6 +137,12 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       );
     }
 
+    if (this.env !== "production") {
+      console.log(
+        "[SchemaVaultsPostgresNeonProxyAdapter] Initializing SchemaVaults x Kysely x Neon database adapter...",
+      );
+    }
+
     const dialect = new NeonDialect(kysely_neon_dialect_config);
 
     const kysely_configuration: KyselyConfig = {
@@ -145,7 +158,7 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       this.env === "staging"
     ) {
       console.log(
-        "[SchemaVaultsPostgresNeonProxyAdapter] Initialized SchemaVaults x Kysely auth database adapter in environment: ",
+        "[SchemaVaultsPostgresNeonProxyAdapter] Initialized SchemaVaults x Kysely x Neon database adapter in environment: ",
         this.env,
       );
     }
