@@ -6,6 +6,7 @@ import type { SchemaVaultsAppEnvironment } from "@schemavaults/app-definitions";
 import type { KyselyConfig } from "kysely";
 import maybeStripQuotes from "@/utils/maybeStripQuotes";
 import getPostgresNeonWsProxyUrl from "./utils/getPostgresNeonWsProxyUrl";
+import isDbhInDebugMode from "@/utils/isDbhInDebugMode";
 
 type NeonDialectConfig = ConstructorParameters<typeof NeonDialect>[0];
 
@@ -16,8 +17,9 @@ export interface ISchemaVaultsPostgresNeonProxyAdapterConstructorOpts {
 export class SchemaVaultsPostgresNeonProxyAdapter<
   KyselyTablesType extends object,
 > {
-  private kysely_db: Kysely<KyselyTablesType>;
-  private env: SchemaVaultsAppEnvironment;
+  private readonly kysely_db: Kysely<KyselyTablesType>;
+  private readonly env: SchemaVaultsAppEnvironment;
+  private readonly debug: boolean;
 
   private static maybeStripQuotes(
     maybeQuotes?: string | undefined,
@@ -28,8 +30,13 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
   private static getPostgresNeonWsProxyUrl(
     pg_host: string,
     environment: SchemaVaultsAppEnvironment,
+    debug: boolean = false,
   ): string {
-    return getPostgresNeonWsProxyUrl(pg_host, environment) satisfies string;
+    return getPostgresNeonWsProxyUrl(
+      pg_host,
+      environment,
+      debug,
+    ) satisfies string;
   } // end of getPostgresNeonWsProxyUrl()
 
   // Initialized from getInstance() (Singleton pattern)
@@ -39,27 +46,45 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
     const environment: SchemaVaultsAppEnvironment = opts.environment;
     this.env = environment;
 
+    // checks if 'SCHEMAVAULTS_DBH_DEBUG="true"' is set in env vars, or defaults to yes if in dev/test/staging environment
+    this.debug = isDbhInDebugMode(this.env);
+
     const POSTGRES_URL = SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
       process.env.POSTGRES_URL,
     );
-    const POSTGRES_HOST = SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
-      process.env.POSTGRES_HOST,
-    );
-
     if (!POSTGRES_URL) {
       throw new Error("POSTGRES_URL is not set in environment variables!");
     } else {
-      if (this.env !== "production") {
+      if (this.debug) {
         console.log(
-          `[SchemaVaultsPostgresNeonProxyAdapter] Using database POSTGRES_URL: \"${POSTGRES_URL}\"`,
+          `[SchemaVaultsPostgresNeonProxyAdapter] Using postgres connection url POSTGRES_URL: \"${POSTGRES_URL}\"`,
         );
       }
     }
 
+    const POSTGRES_URL_NO_POOLING =
+      SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
+        process.env.POSTGRES_URL_NO_POOLING,
+      );
+    if (!POSTGRES_URL_NO_POOLING) {
+      console.warn(
+        "POSTGRES_URL_NO_POOLING is not set in environment variables!",
+      );
+    } else {
+      if (this.debug) {
+        console.log(
+          `[SchemaVaultsPostgresNeonProxyAdapter] Using postgres no-pooling connection url POSTGRES_URL_NO_POOLING: \"${POSTGRES_URL_NO_POOLING}\"`,
+        );
+      }
+    }
+
+    const POSTGRES_HOST = SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
+      process.env.POSTGRES_HOST,
+    );
     if (!POSTGRES_HOST) {
       throw new Error("POSTGRES_HOST is not set in environment variables!");
     } else {
-      if (this.env !== "production") {
+      if (this.debug) {
         console.log(
           `[SchemaVaultsPostgresNeonProxyAdapter] Using database POSTGRES_HOST: \"${POSTGRES_HOST}\"`,
         );
@@ -105,39 +130,36 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
     }
 
     const kysely_neon_dialect_config: NeonDialectConfig = {
-      connectionString: POSTGRES_URL,
-      host: POSTGRES_HOST,
-      user: POSTGRES_USER,
-      password: POSTGRES_PASSWORD,
-      database: POSTGRES_DATABASE,
+      connectionString: POSTGRES_URL satisfies string,
+      host: POSTGRES_HOST satisfies string,
+      user: POSTGRES_USER satisfies string,
+      password: POSTGRES_PASSWORD satisfies string,
+      database: POSTGRES_DATABASE satisfies string,
       useSecureWebSocket: (this.env === "production") satisfies boolean,
-      port: POSTGRES_PORT,
+      port: POSTGRES_PORT satisfies number,
       wsProxy: (pg_host: string): string => {
         // Calculate the wsProxy url from host
         return SchemaVaultsPostgresNeonProxyAdapter.getPostgresNeonWsProxyUrl(
           pg_host,
           environment,
+          this.debug,
         );
       },
     };
 
-    if (this.env !== "production") {
+    if (this.debug) {
       kysely_neon_dialect_config.pipelineTLS = false;
       kysely_neon_dialect_config.pipelineConnect = false;
     }
 
-    if (
-      this.env === "development" ||
-      this.env === "test" ||
-      this.env === "staging"
-    ) {
+    if (this.debug) {
       console.log(
         "[SchemaVaultsPostgresNeonProxyAdapter] Kysely Neon DB adapter configuration: ",
         kysely_neon_dialect_config,
       );
     }
 
-    if (this.env !== "production") {
+    if (this.debug) {
       console.log(
         "[SchemaVaultsPostgresNeonProxyAdapter] Initializing SchemaVaults x Kysely x Neon database adapter...",
       );
@@ -152,11 +174,7 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
 
     this.kysely_db = new Kysely<KyselyTablesType>(kysely_configuration);
 
-    if (
-      this.env === "development" ||
-      this.env === "test" ||
-      this.env === "staging"
-    ) {
+    if (this.debug) {
       console.log(
         "[SchemaVaultsPostgresNeonProxyAdapter] Initialized SchemaVaults x Kysely x Neon database adapter in environment: ",
         this.env,
