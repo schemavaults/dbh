@@ -5,7 +5,9 @@ import { Kysely } from "kysely";
 import type { SchemaVaultsAppEnvironment } from "@schemavaults/app-definitions";
 import type { KyselyConfig } from "kysely";
 import maybeStripQuotes from "@/utils/maybeStripQuotes";
-import getPostgresNeonWsProxyUrl from "./utils/getPostgresNeonWsProxyUrl";
+import getPostgresNeonWsProxyUrl, {
+  type IGetPostgresNeonWsProxyUrlOpts,
+} from "./utils/getPostgresNeonWsProxyUrl";
 import isDbhInDebugMode from "@/utils/isDbhInDebugMode";
 
 type NeonDialectConfig = ConstructorParameters<typeof NeonDialect>[0];
@@ -28,15 +30,9 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
   }
 
   private static getPostgresNeonWsProxyUrl(
-    pg_host: string,
-    environment: SchemaVaultsAppEnvironment,
-    debug: boolean = false,
+    opts: IGetPostgresNeonWsProxyUrlOpts,
   ): string {
-    return getPostgresNeonWsProxyUrl(
-      pg_host,
-      environment,
-      debug,
-    ) satisfies string;
+    return getPostgresNeonWsProxyUrl(opts) satisfies string;
   } // end of getPostgresNeonWsProxyUrl()
 
   // Initialized from getInstance() (Singleton pattern)
@@ -48,6 +44,7 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
 
     // checks if 'SCHEMAVAULTS_DBH_DEBUG="true"' is set in env vars, or defaults to yes if in dev/test/staging environment
     this.debug = isDbhInDebugMode(this.env);
+    const debug: boolean = this.debug;
 
     const POSTGRES_URL = SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
       process.env.POSTGRES_URL,
@@ -138,12 +135,17 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       useSecureWebSocket: (this.env === "production") satisfies boolean,
       port: POSTGRES_PORT satisfies number,
       wsProxy: (pg_host: string): string => {
+        if (debug) {
+          console.log(
+            `[SchemaVaultsPostgresNeonProxyAdapter] NeonDialectConfig.wsProxy("${pg_host}")`,
+          );
+        }
         // Calculate the wsProxy url from host
-        return SchemaVaultsPostgresNeonProxyAdapter.getPostgresNeonWsProxyUrl(
+        return SchemaVaultsPostgresNeonProxyAdapter.getPostgresNeonWsProxyUrl({
           pg_host,
           environment,
-          this.debug,
-        );
+          debug,
+        }) satisfies string;
       },
     };
 

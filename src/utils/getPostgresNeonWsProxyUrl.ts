@@ -1,18 +1,31 @@
-import type { SchemaVaultsAppEnvironment } from "@schemavaults/app-definitions";
+import {
+  schemaVaultsAppEnvironmentSchema,
+  type SchemaVaultsAppEnvironment,
+} from "@schemavaults/app-definitions";
 
-export function getPostgresNeonWsProxyUrl(
-  pg_host: string,
-  environment: SchemaVaultsAppEnvironment,
-  debug: boolean = false,
-): string {
+export interface IGetPostgresNeonWsProxyUrlOpts {
+  pg_host: string;
+  environment: SchemaVaultsAppEnvironment;
+  debug?: boolean;
+}
+
+export function getPostgresNeonWsProxyUrl({
+  pg_host,
+  environment,
+  ...opts
+}: IGetPostgresNeonWsProxyUrlOpts): string {
+  const debug: boolean = opts.debug ?? false;
   if (debug) {
     console.log(
-      `[getPostgresNeonWsProxyUrl] Loading websocket proxy URL in environment "${environment}"...`,
+      `[getPostgresNeonWsProxyUrl] Loading websocket proxy URL in environment "${environment}" from base 'pg_host' url:`,
+      pg_host,
     );
   }
 
   let ws_host: string;
-  if (environment === "development") {
+  if (environment === "production") {
+    ws_host = pg_host;
+  } else if (environment === "development") {
     if (pg_host.includes("localhost")) {
       ws_host = "localhost";
     } else {
@@ -21,13 +34,30 @@ export function getPostgresNeonWsProxyUrl(
   } else if (environment === "test" || environment === "staging") {
     ws_host = "schemavaults-postgres-proxy-dev";
   } else {
-    ws_host = pg_host;
+    throw new Error("Failed to build 'ws_host' url for Postgres Neon proxy!");
   }
 
-  const neon_api_version_suffix = "v1" as const satisfies string;
+  console.assert(
+    schemaVaultsAppEnvironmentSchema.safeParse(environment).success,
+    "Invalid app environment to determine postgres neon websocket proxy URL for!",
+  );
+
+  const neon_api_version_suffix =
+    environment === "production"
+      ? ("v2" as const satisfies string)
+      : ("v1" as const satisfies string);
+
+  const usingLocalNeonProxyContainer: boolean = environment !== "production";
+  const shouldAppendPort: boolean = usingLocalNeonProxyContainer;
 
   const postgresNeonWsProxyUrl =
-    `${ws_host}:5433/${neon_api_version_suffix}` as const satisfies string;
+    `${ws_host}${shouldAppendPort ? ":5433" : ""}/${neon_api_version_suffix}` as const satisfies string;
+
+  console.assert(
+    !postgresNeonWsProxyUrl.startsWith("ws://") &&
+      !postgresNeonWsProxyUrl.startsWith("wss://"),
+    "Expected built postgres neon proxy websocket URL to not include protocol (ws:// or wss://)!",
+  );
 
   if (debug) {
     console.log(
