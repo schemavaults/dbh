@@ -59,18 +59,18 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       }
     }
 
-    const POSTGRES_URL_NO_POOLING =
+    const POSTGRES_URL_NON_POOLING =
       SchemaVaultsPostgresNeonProxyAdapter.maybeStripQuotes(
-        process.env.POSTGRES_URL_NO_POOLING,
+        process.env.POSTGRES_URL_NON_POOLING,
       );
-    if (!POSTGRES_URL_NO_POOLING) {
+    if (!POSTGRES_URL_NON_POOLING) {
       console.warn(
-        "POSTGRES_URL_NO_POOLING is not set in environment variables!",
+        "POSTGRES_URL_NON_POOLING is not set in environment variables!",
       );
     } else {
       if (this.debug) {
         console.log(
-          `[SchemaVaultsPostgresNeonProxyAdapter] Using postgres no-pooling connection url POSTGRES_URL_NO_POOLING: \"${POSTGRES_URL_NO_POOLING}\"`,
+          `[SchemaVaultsPostgresNeonProxyAdapter] Using postgres no-pooling connection url POSTGRES_URL_NON_POOLING: \"${POSTGRES_URL_NON_POOLING}\"`,
         );
       }
     }

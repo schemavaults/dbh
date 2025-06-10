@@ -17,6 +17,7 @@ Ensure that the following environment variables are defined:
 POSTGRES_USER=""
 POSTGRES_PASSWORD=""
 POSTGRES_URL=""
+POSTGRES_URL_NON_POOLING=""
 POSTGRES_HOST=""
 POSTGRES_PORT="5432"
 POSTGRES_DATABASE=""
