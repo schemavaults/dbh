@@ -2,7 +2,7 @@
 
 ## About
 
-This package makes it easy to connect to a Postgres instance from a "serverless" environment.
+This package makes it easy to connect to a Postgres instance and run queries using the 'Kysely' type-safe query builder-- whether it's a local Postgres container or a serverless [Neon](https://neon.com/)-hosted Postgres container.
 
 ## Highlighted Dependencies
 
