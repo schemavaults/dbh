@@ -12,5 +12,10 @@ turbo.json
 .env.staging
 
 dist/**/*.test.d.ts
+dist/**/*.test.js.map
+dist/**/*.test.js
+
 
 .github/
+
+node_modules

@@ -1,7 +1,7 @@
 import {
-  schemaVaultsAppEnvironmentSchema,
+  isValidAppEnvironment,
   type SchemaVaultsAppEnvironment,
-} from "@schemavaults/app-definitions";
+} from "@/SchemaVaultsAppEnvironment";
 
 export interface IGetPostgresNeonWsProxyUrlOpts {
   pg_host: string;
@@ -38,7 +38,7 @@ export function getPostgresNeonWsProxyUrl({
   }
 
   console.assert(
-    schemaVaultsAppEnvironmentSchema.safeParse(environment).success,
+    isValidAppEnvironment(environment),
     "Invalid app environment to determine postgres neon websocket proxy URL for!",
   );
 

@@ -1,4 +1,12 @@
-import type { SchemaVaultsAppEnvironment } from "@schemavaults/app-definitions";
+import type { SchemaVaultsAppEnvironment } from "@/SchemaVaultsAppEnvironment";
+
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      SCHEMAVAULTS_DBH_DEBUG?: 'true' | 'false';
+    }
+  }
+}
 
 export function isDbhInDebugMode(
   environment: SchemaVaultsAppEnvironment,
