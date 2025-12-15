@@ -19,3 +19,9 @@ dist/**/*.test.js
 .github/
 
 node_modules
+
+tsconfig.json
+
+.npmrc.github
+.npmrc.npmjs
+.npmrc
