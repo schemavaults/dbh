@@ -38,5 +38,12 @@ jobs:
           SCHEMAVAULTS_GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Delete .npmrc for GitHub NPM registry
         run: rm -rf .npmrc
+      - name: Configure .npmrc to publish to NPMJS registry
+        run: cp .npmrc.npmjs .npmrc
       - name: Publish package to NPMJS registry
-        run: bun publish --registry=https://registry.npmjs.org --provenance --access public
+        run: bun publish --registry=https://registry.npmjs.org --access public
+        env:
+          NPM_PACKAGE_PUBLISH_USER: ${{ github.actor }}
+          NPM_PACKAGE_PUBLISH_TOKEN: ${{ secrets.NPM_PACKAGE_PUBLISH_TOKEN }}
+      - name: Delete .npmrc for NPMJS registry
+        run: rm -rf .npmrc
