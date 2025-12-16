@@ -57,6 +57,12 @@ jobs:
         run: bun run build
       - name: Pack up package with Bun
         run: bun pm pack --quiet --filename schemavaults-dbh.tgz
+      - name: Assert tarball exists at expected location
+        run: |
+          if [ ! -f schemavaults-dbh.tgz ]; then
+            echo "Error: schemavaults-dbh.tgz not found!"
+            exit 1
+          fi
       - name: Upload package artifact
         uses: actions/upload-artifact@v6
         with:
@@ -76,23 +82,23 @@ jobs:
     permissions:
       packages: write
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Download package artifact
         uses: actions/download-artifact@v7
         with:
           name: package-tarball
           path: .
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Assert tarball exists at expected location
+        run: |
+          if [ ! -f schemavaults-dbh.tgz ]; then
+            echo "Error: schemavaults-dbh.tgz not found!"
+            exit 1
+          fi
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
-      - name: Install dependencies with Bun
-        run: bun install
-      - name: Build package with Bun
-        run: bun run build
-      - name: Run package unit tests
-        run: bun run test
       - name: Configure .npmrc to publish to GitHub NPM registry
         run: cp .npmrc.github .npmrc
       - name: Publish package to GitHub NPM registry
@@ -119,6 +125,12 @@ jobs:
         with:
           name: package-tarball
           path: .
+      - name: Assert tarball exists at expected location
+        run: |
+          if [ ! -f schemavaults-dbh.tgz ]; then
+            echo "Error: schemavaults-dbh.tgz not found!"
+            exit 1
+          fi
       - uses: actions/setup-node@v5
         with:
           node-version: "24"
