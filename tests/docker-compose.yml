@@ -1,0 +1,59 @@
+services:
+  postgres:
+    container_name: postgres
+    build:
+      context: ..
+      dockerfile: postgres/Dockerfile
+      args:
+        POSTGRES_VERSION: 17.7
+    command: "-d 1"
+    # volumes:
+    # - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=main
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 6s
+      timeout: 4s
+      retries: 8
+
+  postgres-ws-proxy:
+    container_name: postgres-ws-proxy
+    build:
+      context: ..
+      dockerfile: postgres-ws-proxy/Dockerfile
+    environment:
+      APPEND_PORT: "postgres:5432"
+      ALLOW_ADDR_REGEX: ".*"
+      LISTEN_PORT: ":5433"
+      LOG_TRAFFIC: "true"
+    ports:
+      - "5433:5433"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    links:
+      - postgres
+
+  test-runner:
+    container_name: test-runner
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
+      args:
+        BUN_VERSION: 1.3.3
+    depends_on:
+      postgres:
+        condition: service_healthy
+      postgres-ws-proxy:
+        condition: service_started
+    links:
+      - postgres
+      - postgres-ws-proxy
+
+volumes:
+  postgres-data:

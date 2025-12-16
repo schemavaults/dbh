@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.5.6",
+  "version": "0.6.0",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
@@ -20,9 +20,11 @@
   },
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc-alias --project tsconfig.json",
-    "test": "bun test",
-    "test:watch": "bun test --watch",
+    "test:unit": "bun test --test-name-pattern 'DBH Init'",
+    "test": "bun run test:unit",
+    "test:e2e": "bun test ./src/tests/e2e/ConnectToLocalDatabase.test.ts",
     "cleanup:compiled_tests_in_dist_directory": "find ./dist -type f \\( -name \"*.test.js\" -o -name \"*.test.js.map\" -o -name \"*.test.d.ts\" \\) -delete",
+    "cleanup:rm_tests_dir": "rm -rf ./dist/tests",
     "cleanup": "bun run cleanup:compiled_tests_in_dist_directory",
     "postbuild": "bun run cleanup"
   },

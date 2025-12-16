@@ -29,10 +29,10 @@ export function getPostgresNeonWsProxyUrl({
     if (pg_host.includes("localhost")) {
       ws_host = "localhost";
     } else {
-      ws_host = "schemavaults-postgres-proxy-dev";
+      ws_host = "postgres-ws-proxy";
     }
   } else if (environment === "test" || environment === "staging") {
-    ws_host = "schemavaults-postgres-proxy-dev";
+    ws_host = "postgres-ws-proxy";
   } else {
     throw new Error("Failed to build 'ws_host' url for Postgres Neon proxy!");
   }

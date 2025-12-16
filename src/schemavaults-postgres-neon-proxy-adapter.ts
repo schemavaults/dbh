@@ -7,16 +7,20 @@ import type { KyselyConfig } from "kysely";
 import maybeStripQuotes from "@/utils/maybeStripQuotes";
 import getPostgresNeonWsProxyUrl, {
   type IGetPostgresNeonWsProxyUrlOpts,
-} from "./utils/getPostgresNeonWsProxyUrl";
+} from "@/utils/getPostgresNeonWsProxyUrl";
 import isDbhInDebugMode from "@/utils/isDbhInDebugMode";
-import type { PostgresDatabaseCredentials } from "./PostgresDatabaseCredentials";
-import parseDatabaseCredentialsFromEnv from "./utils/parseDatabaseCredentialsFromEnv";
+import type {
+  BaseInitializablePostgresDatabaseCredentials,
+  PostgresDatabaseCredentials,
+} from "@/PostgresDatabaseCredentials";
+import parseDatabaseCredentialsFromEnv from "@/utils/parseDatabaseCredentialsFromEnv";
+import parseDatabaseCredentials from "@/utils/parseDatabaseCredentials";
 
 type NeonDialectConfig = ConstructorParameters<typeof NeonDialect>[0];
 
 export interface ISchemaVaultsPostgresNeonProxyAdapterConstructorOpts {
   environment: SchemaVaultsAppEnvironment;
-  credentials?: PostgresDatabaseCredentials;
+  credentials?: BaseInitializablePostgresDatabaseCredentials;
 }
 
 export class SchemaVaultsPostgresNeonProxyAdapter<
@@ -49,7 +53,21 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
     this.debug = isDbhInDebugMode(this.env);
     const debug: boolean = this.debug;
 
-    const credentials: PostgresDatabaseCredentials = opts.credentials ?? parseDatabaseCredentialsFromEnv(process.env, debug)
+    let credentials: PostgresDatabaseCredentials | undefined = undefined;
+    if (opts.credentials) {
+      credentials = parseDatabaseCredentials(opts.credentials, debug);
+    } else {
+      credentials = parseDatabaseCredentialsFromEnv(process.env, debug);
+    }
+
+    const port: number =
+      typeof credentials.POSTGRES_PORT === "number"
+        ? credentials.POSTGRES_PORT
+        : Number.parseInt(credentials.POSTGRES_PORT);
+
+    if (isNaN(port)) {
+      throw new Error(`Invalid port number: ${credentials.POSTGRES_PORT}`);
+    }
 
     const kysely_neon_dialect_config: NeonDialectConfig = {
       connectionString: credentials.POSTGRES_URL satisfies string,
@@ -58,7 +76,7 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       password: credentials.POSTGRES_PASSWORD satisfies string,
       database: credentials.POSTGRES_DATABASE satisfies string,
       useSecureWebSocket: (this.env === "production") satisfies boolean,
-      port: credentials.POSTGRES_PORT satisfies number,
+      port,
       wsProxy: (pg_host: string): string => {
         if (debug) {
           console.log(
@@ -118,3 +136,5 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
     return;
   }
 }
+
+export default SchemaVaultsPostgresNeonProxyAdapter;
