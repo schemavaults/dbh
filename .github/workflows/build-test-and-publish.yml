@@ -126,9 +126,13 @@ jobs:
         run: rm -rf .npmrc
 
   Publish-Websocket-Proxy-To-GHCR:
+    name: "Publish 'postgres-ws-proxy' Docker image"
     needs:
       - E2E-Tests
+      - Build-Package
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,4 +150,5 @@ jobs:
           file: postgres-ws-proxy/Dockerfile
           push: true
           tags: |
-            ghcr.io/schemavaults/postgres-ws-proxy:latest
+            ghcr.io/schemavaults/dbh/postgres-ws-proxy:latest
+            ghcr.io/schemavaults/dbh/postgres-ws-proxy:

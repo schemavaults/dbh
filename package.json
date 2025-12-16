@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
