@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
@@ -26,7 +26,8 @@
     "cleanup:compiled_tests_in_dist_directory": "find ./dist -type f \\( -name \"*.test.js\" -o -name \"*.test.js.map\" -o -name \"*.test.d.ts\" \\) -delete",
     "cleanup:rm_tests_dir": "rm -rf ./dist/tests",
     "cleanup": "bun run cleanup:compiled_tests_in_dist_directory",
-    "postbuild": "bun run cleanup"
+    "postbuild": "bun run cleanup",
+    "version": "bun run ./scripts/package_version.ts"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",

@@ -38,10 +38,12 @@ jobs:
         run: bun run test:unit
 
   Build-Package:
-    name: "Compile package"
+    name: "Build '@schemavaults/dbh' package"
     runs-on: ubuntu-latest
     needs:
       - Unit-Tests
+    outputs:
+      package_version: ${{ steps.package_version.outputs.package_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,6 +63,9 @@ jobs:
           name: package-tarball
           path: schemavaults-dbh.tgz
           retention-days: 3
+      - name: Get package version
+        id: package_version
+        run: echo "package_version=$(bun run version)" >> "$GITHUB_OUTPUT"
 
   Publish-To-Github-Packages:
     name: "Publish package to GitHub Packages"
@@ -75,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: package-tarball
-          path: schemavaults-dbh.tgz
+          path: .
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Bun
@@ -91,7 +96,7 @@ jobs:
       - name: Configure .npmrc to publish to GitHub NPM registry
         run: cp .npmrc.github .npmrc
       - name: Publish package to GitHub NPM registry
-        run: bun publish --registry=https://npm.pkg.github.com --access public
+        run: bun publish ./schemavaults-dbh.tgz --registry=https://npm.pkg.github.com --access public
         env:
           SCHEMAVAULTS_GITHUB_PACKAGE_REGISTRY_USER: ${{ github.actor }}
           SCHEMAVAULTS_GITHUB_PACKAGE_REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -113,7 +118,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: package-tarball
-          path: schemavaults-dbh.tgz
+          path: .
       - uses: actions/setup-node@v5
         with:
           node-version: "24"
@@ -151,4 +156,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/schemavaults/dbh/postgres-ws-proxy:latest
-            ghcr.io/schemavaults/dbh/postgres-ws-proxy:
+            ghcr.io/schemavaults/dbh/postgres-ws-proxy:${{needs.Build-Package.outputs.package_version}}
