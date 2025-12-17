@@ -44,10 +44,50 @@ class DBH
   }
 }
 
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 describe("ConnectToLocalDatabase", () => {
   test("should connect to local database", async () => {
     await using adapter = new DBH();
     expect(adapter).toBeTruthy();
+
+    async function doesTableExist(
+      dbh: SchemaVaultsPostgresNeonProxyAdapter<TestDatabaseType>,
+      table_name: string,
+    ): Promise<boolean> {
+      const { rows } = await sql`
+        SELECT EXISTS (
+          SELECT 1
+          FROM information_schema.tables
+          WHERE table_schema = 'public'
+            AND table_name = ${table_name}
+        ) AS exists;
+      `.execute(dbh.db);
+
+      if (!Array.isArray(rows)) {
+        throw new Error("Unexpected result from database, 'rows' not an array");
+      }
+
+      if (rows.length === 0) {
+        return false;
+      } else if (rows.length > 1) {
+        throw new Error(
+          "Unexpected result from database, 'rows' has more than one element",
+        );
+      } else if (!rows[0] || typeof rows[0] !== "object") {
+        throw new Error("Unexpected result from database, 'rows' is empty");
+      }
+
+      const tableExists: object = rows[0];
+
+      if (tableExists && "exists" in tableExists && tableExists.exists) {
+        return true;
+      }
+
+      return false;
+    }
 
     async function createTable(
       dbh: SchemaVaultsPostgresNeonProxyAdapter<TestDatabaseType>,
@@ -62,7 +102,19 @@ describe("ConnectToLocalDatabase", () => {
       return await adapter.db.selectFrom("people").selectAll().execute();
     }
 
-    await createTable(adapter);
+    // test doesTableExist functionality
+    expect(
+      await doesTableExist(adapter, `random-table-${crypto.randomUUID()}`),
+    ).toBeFalse();
+
+    const tableExistsBefore: boolean = await doesTableExist(adapter, "people");
+    if (!tableExistsBefore) {
+      await createTable(adapter);
+      await sleep(250);
+    }
+
+    const tableExistsAfter = await doesTableExist(adapter, "people");
+    expect(tableExistsAfter, "Table should exist after creation").toBeTrue();
 
     expect(await listPeople()).toBeArrayOfSize(0);
 

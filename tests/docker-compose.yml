@@ -1,6 +1,5 @@
 services:
   postgres:
-    container_name: postgres
     build:
       context: ..
       dockerfile: postgres/Dockerfile
@@ -22,7 +21,6 @@ services:
       retries: 8
 
   postgres-ws-proxy:
-    container_name: postgres-ws-proxy
     build:
       context: ..
       dockerfile: postgres-ws-proxy/Dockerfile
@@ -40,7 +38,6 @@ services:
       - postgres
 
   test-runner:
-    container_name: test-runner
     build:
       context: ..
       dockerfile: tests/Dockerfile
@@ -54,6 +51,8 @@ services:
     links:
       - postgres
       - postgres-ws-proxy
+    environment:
+      NODE_ENV: test
 
 volumes:
   postgres-data:
