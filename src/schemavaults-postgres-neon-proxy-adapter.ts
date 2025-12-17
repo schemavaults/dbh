@@ -2,10 +2,13 @@
 
 import { NeonDialect } from "kysely-neon";
 import { Kysely } from "kysely";
-import type { SchemaVaultsAppEnvironment } from "@/SchemaVaultsAppEnvironment";
+import {
+  isValidAppEnvironment,
+  type SchemaVaultsAppEnvironment,
+} from "@/SchemaVaultsAppEnvironment";
 import type { KyselyConfig } from "kysely";
-import maybeStripQuotes from "@/utils/maybeStripQuotes";
 import getPostgresNeonWsProxyUrl, {
+  type WsProxyUrlGenerator,
   type IGetPostgresNeonWsProxyUrlOpts,
 } from "@/utils/getPostgresNeonWsProxyUrl";
 import isDbhInDebugMode from "@/utils/isDbhInDebugMode";
@@ -19,8 +22,23 @@ import parseDatabaseCredentials from "@/utils/parseDatabaseCredentials";
 type NeonDialectConfig = ConstructorParameters<typeof NeonDialect>[0];
 
 export interface ISchemaVaultsPostgresNeonProxyAdapterConstructorOpts {
+  /**
+   * @description SchemaVaultsAppEnvironment.
+   * @example 'development' 'test' 'staging' 'production'
+   */
   environment: SchemaVaultsAppEnvironment;
+
+  /**
+   * @description PostgresDatabaseCredentials.
+   * @default loaded from environment variables if not supplied
+   */
   credentials?: BaseInitializablePostgresDatabaseCredentials;
+
+  /**
+   * @description Pass a custom function, it will receive an object containing the 'pg_host' and 'environment' and should output the endpoint of the proxy to use
+   * @example given { pg_host: 'localhost', environment: 'development' } it might return => 'localhost:5433/v1'
+   */
+  wsProxyUrl?: WsProxyUrlGenerator | string;
 }
 
 export class SchemaVaultsPostgresNeonProxyAdapter<
@@ -30,36 +48,13 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
   private readonly env: SchemaVaultsAppEnvironment;
   private readonly debug: boolean;
 
-  private static maybeStripQuotes(
-    maybeQuotes?: string | undefined,
-  ): string | undefined {
-    return maybeStripQuotes(maybeQuotes);
-  }
-
   private static getPostgresNeonWsProxyUrl(
     opts: IGetPostgresNeonWsProxyUrlOpts,
   ): string {
     return getPostgresNeonWsProxyUrl(opts) satisfies string;
   } // end of getPostgresNeonWsProxyUrl()
 
-  // Initialized from getInstance() (Singleton pattern)
-  public constructor(
-    opts: ISchemaVaultsPostgresNeonProxyAdapterConstructorOpts,
-  ) {
-    const environment: SchemaVaultsAppEnvironment = opts.environment;
-    this.env = environment;
-
-    // checks if 'SCHEMAVAULTS_DBH_DEBUG="true"' is set in env vars, or defaults to yes if in dev/test/staging environment
-    this.debug = isDbhInDebugMode(this.env);
-    const debug: boolean = this.debug;
-
-    let credentials: PostgresDatabaseCredentials | undefined = undefined;
-    if (opts.credentials) {
-      credentials = parseDatabaseCredentials(opts.credentials, debug);
-    } else {
-      credentials = parseDatabaseCredentialsFromEnv(process.env, debug);
-    }
-
+  private static parsePort(credentials: PostgresDatabaseCredentials): number {
     const port: number =
       typeof credentials.POSTGRES_PORT === "number"
         ? credentials.POSTGRES_PORT
@@ -67,6 +62,37 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
 
     if (isNaN(port)) {
       throw new Error(`Invalid port number: ${credentials.POSTGRES_PORT}`);
+    }
+    return port;
+  }
+
+  // Initialized from getInstance() (Singleton pattern)
+  public constructor({
+    environment,
+    ...opts
+  }: ISchemaVaultsPostgresNeonProxyAdapterConstructorOpts) {
+    if (!isValidAppEnvironment(environment)) {
+      throw new TypeError("Invalid SCHEMAVAULTS_APP_ENVIRONMENT!");
+    }
+    this.env = environment satisfies SchemaVaultsAppEnvironment;
+
+    // checks if 'SCHEMAVAULTS_DBH_DEBUG="true"' is set in env vars, or defaults to yes if in dev/test/staging environment
+    const debug: boolean = isDbhInDebugMode(this.env);
+    this.debug = debug;
+
+    let credentials: PostgresDatabaseCredentials | undefined = undefined;
+    if (opts.credentials) {
+      if (typeof opts.credentials !== "object") {
+        throw new TypeError("'credentials' is truthy but not an object!");
+      }
+      credentials = parseDatabaseCredentials(opts.credentials, this.debug);
+    } else {
+      credentials = parseDatabaseCredentialsFromEnv(process.env, this.debug);
+    }
+    if (!credentials) {
+      throw new Error(
+        "Failed to parse database credentials from options or environment variables!",
+      );
     }
 
     const kysely_neon_dialect_config: NeonDialectConfig = {
@@ -76,7 +102,9 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
       password: credentials.POSTGRES_PASSWORD satisfies string,
       database: credentials.POSTGRES_DATABASE satisfies string,
       useSecureWebSocket: (this.env === "production") satisfies boolean,
-      port,
+      port: SchemaVaultsPostgresNeonProxyAdapter.parsePort(
+        credentials,
+      ) satisfies number,
       wsProxy: (pg_host: string): string => {
         if (debug) {
           console.log(
@@ -84,11 +112,52 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
           );
         }
         // Calculate the wsProxy url from host
-        return SchemaVaultsPostgresNeonProxyAdapter.getPostgresNeonWsProxyUrl({
-          pg_host,
-          environment,
-          debug,
-        }) satisfies string;
+        let resolvedWsProxyUrl: string;
+        try {
+          const wsProxyUrlGeneratorSettings: IGetPostgresNeonWsProxyUrlOpts = {
+            pg_host,
+            environment,
+            debug: this.debug,
+          };
+
+          if (typeof opts.wsProxyUrl === "undefined" || !opts.wsProxyUrl) {
+            // Default ws proxy URL generator
+            resolvedWsProxyUrl =
+              SchemaVaultsPostgresNeonProxyAdapter.getPostgresNeonWsProxyUrl(
+                wsProxyUrlGeneratorSettings,
+              );
+          } else if (
+            typeof opts.wsProxyUrl === "string" &&
+            opts.wsProxyUrl &&
+            opts.wsProxyUrl.length > 0
+          ) {
+            resolvedWsProxyUrl = opts.wsProxyUrl;
+          } else if (typeof opts.wsProxyUrl === "function" && opts.wsProxyUrl) {
+            const wsProxyUrlBuilder: WsProxyUrlGenerator = opts.wsProxyUrl;
+            resolvedWsProxyUrl = wsProxyUrlBuilder(wsProxyUrlGeneratorSettings);
+          } else {
+            throw new Error(
+              `Invalid wsProxy url for host: "${pg_host}". Not a string, undefined, or function!`,
+            );
+          }
+        } catch (error: unknown) {
+          console.error(
+            `[SchemaVaultsPostgresNeonProxyAdapter] NeonDialectConfig.wsProxy("${pg_host}") => Failure: `,
+            error,
+          );
+          throw new Error(
+            `Failed to calculate wsProxy url for host: "${pg_host}"`,
+          );
+        }
+
+        if (this.debug) {
+          console.log(
+            `[SchemaVaultsPostgresNeonProxyAdapter] NeonDialectConfig.wsProxy("${pg_host}") => `,
+            resolvedWsProxyUrl,
+          );
+        }
+
+        return resolvedWsProxyUrl;
       },
     };
 
@@ -138,3 +207,8 @@ export class SchemaVaultsPostgresNeonProxyAdapter<
 }
 
 export default SchemaVaultsPostgresNeonProxyAdapter;
+
+export type {
+  WsProxyUrlGenerator,
+  IGetPostgresNeonWsProxyUrlOpts,
+} from "@/utils/getPostgresNeonWsProxyUrl";

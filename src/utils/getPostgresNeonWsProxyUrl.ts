@@ -9,6 +9,10 @@ export interface IGetPostgresNeonWsProxyUrlOpts {
   debug?: boolean;
 }
 
+export type WsProxyUrlGenerator = (
+  opts: IGetPostgresNeonWsProxyUrlOpts,
+) => string;
+
 export function getPostgresNeonWsProxyUrl({
   pg_host,
   environment,
@@ -69,4 +73,4 @@ export function getPostgresNeonWsProxyUrl({
   return postgresNeonWsProxyUrl;
 }
 
-export default getPostgresNeonWsProxyUrl;
+export default getPostgresNeonWsProxyUrl satisfies WsProxyUrlGenerator;

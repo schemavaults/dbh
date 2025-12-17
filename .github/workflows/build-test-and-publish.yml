@@ -11,8 +11,25 @@ env:
   NODE_VERSION: 24
 
 jobs:
+  Lint:
+    name: "Lint codebase for errors"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+      - name: Install dependencies with Bun
+        run: bun install
+      - name: Run Eslint
+        run: bun run lint
+
   E2E-Tests:
     name: "Run E2E integration test(s)"
+    needs:
+      - Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,6 +41,8 @@ jobs:
 
   Unit-Tests:
     name: "Run unit test(s)"
+    needs:
+      - Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,6 +61,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - Unit-Tests
+      - Lint
     outputs:
       package_version: ${{ steps.package_version.outputs.package_version }}
     steps:
@@ -79,6 +99,8 @@ jobs:
     needs:
       - Build-Package
       - E2E-Tests
+      - Unit-Tests
+      - Lint
     permissions:
       packages: write
     steps:
@@ -114,6 +136,8 @@ jobs:
     needs:
       - Build-Package
       - E2E-Tests
+      - Unit-Tests
+      - Lint
     runs-on: ubuntu-latest
     permissions:
       id-token: write # Required for OIDC
@@ -147,6 +171,7 @@ jobs:
     needs:
       - E2E-Tests
       - Build-Package
+      - Unit-Tests
     runs-on: ubuntu-latest
     permissions:
       packages: write
