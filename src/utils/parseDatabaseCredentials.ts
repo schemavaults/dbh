@@ -47,9 +47,11 @@ function parseDatabaseCredentials(
       : undefined,
   );
   if (!POSTGRES_URL_NON_POOLING) {
-    console.warn(
-      "POSTGRES_URL_NON_POOLING is not set in environment variables!",
-    );
+    if (debug) {
+      console.warn(
+        "POSTGRES_URL_NON_POOLING is not set in environment variables!",
+      );
+    }
   } else {
     if (debug) {
       console.log(
