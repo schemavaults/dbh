@@ -1,9 +1,15 @@
-import type { Kysely } from "kysely";
-import { Migrator, FileMigrationProvider } from "kysely";
+// migrate.ts
+
+import {
+  Kysely,
+  Migrator,
+  FileMigrationProvider,
+  type MigrationResultSet,
+  MigrationResult,
+} from "kysely";
 import fs from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
-import { MigrationResultSet } from "kysely";
 
 export interface IMigrateOptions {
   db: Kysely<any>;
@@ -32,7 +38,7 @@ export async function migrate({
   db,
   migrationFolder,
   ...opts
-}: IMigrateOptions): Promise<void> {
+}: IMigrateOptions): Promise<MigrationResult[] | undefined> {
   if (typeof migrationFolder !== "string") {
     throw new Error("migrationFolder must be a string");
   }
@@ -49,18 +55,20 @@ export async function migrate({
   } else {
     result = await migrator.migrateToLatest();
   }
-  const { error } = result;
+  const { error, results } = result;
   if (error) {
     console.error(error);
-    process.exit(1);
+    throw error;
   }
+
+  return results;
 }
 
 export async function reverse({
   db,
   migrationFolder,
   version,
-}: IReverseOptions): Promise<void> {
+}: IReverseOptions): Promise<MigrationResult[] | undefined> {
   if (typeof migrationFolder !== "string") {
     throw new Error("migrationFolder must be a string");
   }
@@ -71,11 +79,13 @@ export async function reverse({
 
   const migrator = createMigrator({ db, migrationFolder });
 
-  const { error } = await migrator.migrateTo(version);
+  const { error, results } = await migrator.migrateTo(version);
   if (error) {
     console.error(error);
-    process.exit(1);
+    throw error;
   }
+
+  return results;
 }
 
 export default migrate;
