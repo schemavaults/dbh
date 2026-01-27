@@ -5,11 +5,16 @@ import {
   Migrator,
   FileMigrationProvider,
   type MigrationResultSet,
-  MigrationResult,
 } from "kysely";
 import fs from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
+
+export interface IMigrationResult {
+  migrationName: string;
+  status: "Success" | "Error" | "NotExecuted";
+  direction: "Up" | "Down";
+}
 
 export interface IMigrateOptions {
   db: Kysely<any>;
@@ -34,11 +39,62 @@ function createMigrator({ db, migrationFolder }: IMigrateOptions): Migrator {
   });
 }
 
+function validateMigrationResultFormat(
+  migration_result: unknown,
+): migration_result is IMigrationResult {
+  if (typeof migration_result !== "object" || !migration_result) {
+    throw new TypeError("Expected migration result to be an object!");
+  }
+  if (
+    !("migrationName" in migration_result) ||
+    typeof migration_result.migrationName !== "string"
+  ) {
+    throw new TypeError(
+      "Expected migration result's 'migrationName' to be a string!",
+    );
+  } else if (
+    !("direction" in migration_result) ||
+    typeof migration_result.direction !== "string"
+  ) {
+    throw new TypeError(
+      "Expected migration result's 'direction' to be a string!",
+    );
+  } else if (
+    !("status" in migration_result) ||
+    typeof migration_result.status !== "string"
+  ) {
+    throw new TypeError("Expected migration result's 'status' to be a string!");
+  } else if (!["Up", "Down"].includes(migration_result.direction)) {
+    throw new TypeError(
+      "Expected migration result's 'direction' to be one of: 'Up' or 'Down'!",
+    );
+  } else if (
+    !["Success", "Error", "NotExecuted"].includes(migration_result.status)
+  ) {
+    throw new TypeError(
+      "Expected migration result's 'status' to be one of: 'Success', 'Error', or 'NotExecuted'!",
+    );
+  }
+  return true;
+}
+
+function validateMigrationResultFormats(
+  results: readonly unknown[],
+): results is readonly IMigrationResult[] {
+  if (!Array.isArray(results)) {
+    throw new TypeError("Expected 'results' to be an array!");
+  }
+  for (const migration_result of results) {
+    validateMigrationResultFormat(migration_result);
+  }
+  return true;
+}
+
 export async function migrate({
   db,
   migrationFolder,
   ...opts
-}: IMigrateOptions): Promise<MigrationResult[] | undefined> {
+}: IMigrateOptions): Promise<readonly IMigrationResult[]> {
   if (typeof migrationFolder !== "string") {
     throw new Error("migrationFolder must be a string");
   }
@@ -61,14 +117,24 @@ export async function migrate({
     throw error;
   }
 
-  return results;
+  if (!results) {
+    return [];
+  }
+
+  if (!validateMigrationResultFormats(results)) {
+    throw new TypeError(
+      "Migration appears to have succeeded but failed to parse received results!",
+    );
+  }
+
+  return results satisfies readonly IMigrationResult[];
 }
 
 export async function reverse({
   db,
   migrationFolder,
   version,
-}: IReverseOptions): Promise<MigrationResult[] | undefined> {
+}: IReverseOptions): Promise<IMigrationResult[]> {
   if (typeof migrationFolder !== "string") {
     throw new Error("migrationFolder must be a string");
   }
@@ -83,6 +149,16 @@ export async function reverse({
   if (error) {
     console.error(error);
     throw error;
+  }
+
+  if (!results) {
+    return [];
+  }
+
+  if (!validateMigrationResultFormats(results)) {
+    throw new TypeError(
+      "Reverse migration appears to have succeeded but failed to parse received results!",
+    );
   }
 
   return results;
