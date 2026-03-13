@@ -1,12 +1,15 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.7.7",
+  "version": "0.7.8",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
   "repository": {
     "type": "git",
     "url": "https://github.com/schemavaults/dbh.git"
+  },
+  "bin": {
+    "dbh": "dist-cli/cli.js"
   },
   "dependencies": {
     "kysely": "0.28.10",
@@ -36,7 +39,8 @@
     "cleanup:rm_cli_js_artifacts": "rm -rf ./dist/cli.js && rm -rf ./dist/cli.js.map",
     "cleanup": "bun run cleanup:compiled_tests_in_dist_directory && bun run cleanup:rm_tests_dir && bun run cleanup:rm_cli_js_artifacts",
     "version": "bun run ./scripts/package_version.ts",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "cli": "bun run ./src/cli.ts"
   },
   "main": "dist/index.js",
   "module": "dist/index.js",

@@ -15,6 +15,7 @@ Ensure dependencies are installed with `bun install` before attempting to run an
 - **Unit tests:** `bun run test` or `bun run test:unit`
 - **Single test:** `bun test --test-name-pattern '<pattern>'`
 - **E2E tests:** `cd tests && /bin/bash ./run_e2e_tests.sh` (requires Docker Compose — spins up postgres, ws-proxy, and test-runner containers)
+- **CLI:** `bun run cli --help` locally or `bunx @schemavaults/dbh --help` remotely.
 
 ## Architecture
 
@@ -26,7 +27,7 @@ Key modules:
 - `src/sql.ts` — re-exports Kysely's `sql` tag
 - `src/utils/parseDatabaseCredentials.ts` — parses/validates DB credentials from an object or `process.env`
 
-The package has two export entrypoints: `.` (adapter + sql + types), `./sql` (Kysely template tag re-export), and `./migrate` (migration utilities).
+The package has two export entrypoints: `.` (adapter + sql + types), `./sql` (Kysely template tag re-export), `./migrate` (migration utilities), and `./cli` (@schemavaults/dbh command-line utility).
 
 ## Local Dev Environment
 
