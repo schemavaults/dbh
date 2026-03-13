@@ -195,10 +195,4 @@ dbhCli
 
 export default dbhCli;
 
-const isDirectRun =
-  process.argv[1] &&
-  import.meta.url === `file://${process.argv[1]}`;
-
-if (isDirectRun) {
-  dbhCli.parse();
-}
+dbhCli.parse();
