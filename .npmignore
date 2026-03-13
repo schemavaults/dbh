@@ -15,6 +15,9 @@ dist/**/*.test.d.ts
 dist/**/*.test.js.map
 dist/**/*.test.js
 
+dist/**/cli.js.map
+dist/**/cli.js
+
 dist/tests/
 
 

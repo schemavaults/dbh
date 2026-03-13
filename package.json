@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
@@ -21,17 +21,20 @@
     "@eslint/js": "9.39.1",
     "globals": "16.5.0",
     "@typescript-eslint/eslint-plugin": "8.48.1",
-    "@typescript-eslint/parser": "8.48.1"
+    "@typescript-eslint/parser": "8.48.1",
+    "commander": "14.0.3"
   },
   "scripts": {
     "build": "tsc --project tsconfig.json && tsc-alias --project tsconfig.json",
+    "postbuild": "bun run cleanup",
+    "build:cli": "bun build ./src/cli.ts --outdir dist-cli --format esm --target node --minify",
     "test:unit": "bun test --test-name-pattern 'DBH Init'",
     "test": "bun run test:unit",
     "test:e2e": "bun test ./src/tests/e2e/ConnectToLocalDatabase.test.ts",
     "cleanup:compiled_tests_in_dist_directory": "find ./dist -type f \\( -name \"*.test.js\" -o -name \"*.test.js.map\" -o -name \"*.test.d.ts\" \\) -delete",
     "cleanup:rm_tests_dir": "rm -rf ./dist/tests",
-    "cleanup": "bun run cleanup:compiled_tests_in_dist_directory",
-    "postbuild": "bun run cleanup",
+    "cleanup:rm_cli_js_artifacts": "rm -rf ./dist/cli.js && rm -rf ./dist/cli.js.map",
+    "cleanup": "bun run cleanup:compiled_tests_in_dist_directory && bun run cleanup:rm_tests_dir && bun run cleanup:rm_cli_js_artifacts",
     "version": "bun run ./scripts/package_version.ts",
     "lint": "eslint src"
   },
@@ -68,6 +71,11 @@
       "types": "./dist/sql.d.ts",
       "import": "./dist/sql.js",
       "require": "./dist/sql.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "import": "./dist-cli/cli.js",
+      "require": "./dist-cli/cli.js"
     }
   }
 }
