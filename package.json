@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
@@ -31,7 +31,7 @@
     "build": "bun run build:pkg && bun run build:build-db-migrations && bun run build:cli",
     "postbuild": "bun run cleanup",
     "build:pkg": "tsc --project tsconfig.json && tsc-alias --project tsconfig.json",
-    "build:cli": "bun build ./src/cli.ts --outdir dist-cli --format esm --target node --minify",
+    "build:cli": "bun build ./src/cli.ts --outdir dist-cli --format esm --target node --minify && echo '#!/usr/bin/env node' | cat - dist-cli/cli.js > dist-cli/cli.tmp && mv dist-cli/cli.tmp dist-cli/cli.js",
     "build:build-db-migrations": "bun build ./src/build-db-migrations.ts --outdir dist-cli --format esm --target bun --minify",
     "test:unit": "bun test --test-name-pattern 'DBH Init'",
     "test": "bun run test:unit",
