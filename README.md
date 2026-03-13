@@ -33,9 +33,24 @@ You may need to define a custom `WsProxyUrlGenerator` function to determine how 
 
 ### From your command-line
 
+#### CLI Help Command
 ```bash
 # run migrations (and more) from the cli
 bunx @schemavaults/dbh --help
+# or `bun run cli --help` if you have the dbh source repository as your working directory
+```
+
+#### Build example database migrations with the CLI
+```bash
+mkdir ./tests/tmp
+
+# compile TypeScript Kysely migrations to JavaScript
+bunx @schemavaults/dbh build-db-migrations ./src/tests/example-migrations \
+  --outdir ./tests/tmp/example-compiled-migrations \
+  --sql-module ./src/sql.ts \
+  --sql-outdir ./tests/tmp/
+  
+rm -rf ./tests/tmp
 ```
 
 ## Required Environment Variables
