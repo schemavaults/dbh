@@ -40,11 +40,10 @@ jobs:
           /bin/bash ./run_e2e_tests.sh
 
   CLI-Build-DB-Migrations-Tests:
-    name: "Run E2E integration test(s)"
+    name: "Run tests covering building DB migrations"
     needs:
       - Lint
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,6 +51,8 @@ jobs:
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: ${{ env.BUN_VERSION }}
+      - name: Install dependencies with Bun
+        run: bun install
       - name: Run E2E Tests with Docker Compose
         run: |
           /bin/bash ./tests/run_build_example_migrations_test.sh
@@ -153,6 +154,7 @@ jobs:
     needs:
       - Build-Package
       - E2E-Tests
+      - CLI-Build-DB-Migrations-Tests
       - Unit-Tests
       - Lint
     runs-on: ubuntu-latest

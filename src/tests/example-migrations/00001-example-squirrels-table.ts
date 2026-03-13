@@ -8,7 +8,7 @@ export async function up(db: Kysely<any>): Promise<void> {
     CREATE TABLE IF NOT EXISTS EXAMPLE_SQUIRRELS (
       squirrel_id UUID PRIMARY KEY,
       squirrel_name TEXT NOT NULL,
-      created_at BIGINT NOT NULL,
+      created_at BIGINT NOT NULL
     );
   `;
   await queryTableQuery.execute(db);
