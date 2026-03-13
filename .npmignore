@@ -18,6 +18,9 @@ dist/**/*.test.js
 dist/**/cli.js.map
 dist/**/cli.js
 
+dist/**/build-db-migrations.js.map
+dist/**/build-db-migrations.js
+
 dist/tests/
 
 
