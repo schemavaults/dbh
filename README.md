@@ -31,6 +31,13 @@ For an example, see the e2e test file: [./src/tests/e2e/ConnectToLocalDatabase.t
 
 You may need to define a custom `WsProxyUrlGenerator` function to determine how the `postgres-ws-proxy` can be reached.
 
+### From your command-line
+
+```bash
+# run migrations (and more) from the cli
+bunx @schemavaults/dbh --help
+```
+
 ## Required Environment Variables
 
 Ensure that the following environment variables are defined:
