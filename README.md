@@ -20,7 +20,7 @@ Ensure that you have both `postgres` and a `postgres-ws-proxy` containers runnin
 
 You'll likely want to replace the `build:` sections for the services in the e2e test example `.yml` file with `image:`. For example, use `image: postgres:17.7` for the `postgres` service. For the proxy, you can pull the docker image from `ghcr.io/schemavaults/dbh/postgres-ws-proxy`; use the version number equal to your `@schemavaults/dbh` npm package installation:
 ```md
-# NPM Package: @schemavaults/dbh@0.8.4 => ghcr.io/schemavaults/dbh/postgres-ws-proxy:0.8.4
+# NPM Package: @schemavaults/dbh@0.8.5 => ghcr.io/schemavaults/dbh/postgres-ws-proxy:0.8.5
 ```
 
 ### In your application server code

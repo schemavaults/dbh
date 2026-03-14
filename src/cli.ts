@@ -6,6 +6,7 @@ import { execSync, spawn } from "child_process";
 import { SchemaVaultsPostgresNeonProxyAdapter } from "@/schemavaults-postgres-neon-proxy-adapter";
 import { migrate, reverse } from "@/migrate";
 import type { SchemaVaultsAppEnvironment } from "@/SchemaVaultsAppEnvironment";
+import { loadEnvFile } from "@/utils/loadEnvFile";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json") as { version: string };
@@ -34,12 +35,17 @@ dbhCli
     "App environment (development|test|staging|production)",
   )
   .option("--ws-proxy-url <url>", "Custom WebSocket proxy URL")
+  .option("--env-file <path>", "Path to env file to load (e.g. .env)")
   .action(
     async (
       folder: string,
       version: string | undefined,
-      opts: { environment: string; wsProxyUrl?: string },
+      opts: { environment: string; wsProxyUrl?: string; envFile?: string },
     ) => {
+      if (opts.envFile) {
+        loadEnvFile(opts.envFile);
+      }
+
       const resolvedFolder = path.resolve(folder);
       const adapter = new SchemaVaultsPostgresNeonProxyAdapter<any>({
         environment: opts.environment as SchemaVaultsAppEnvironment,
@@ -79,12 +85,17 @@ dbhCli
     "App environment (development|test|staging|production)",
   )
   .option("--ws-proxy-url <url>", "Custom WebSocket proxy URL")
+  .option("--env-file <path>", "Path to env file to load (e.g. .env)")
   .action(
     async (
       folder: string,
       version: string,
-      opts: { environment: string; wsProxyUrl?: string },
+      opts: { environment: string; wsProxyUrl?: string; envFile?: string },
     ) => {
+      if (opts.envFile) {
+        loadEnvFile(opts.envFile);
+      }
+
       const resolvedFolder = path.resolve(folder);
       const adapter = new SchemaVaultsPostgresNeonProxyAdapter<any>({
         environment: opts.environment as SchemaVaultsAppEnvironment,
