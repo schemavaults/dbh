@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
@@ -35,7 +35,8 @@
     "build:build-db-migrations": "bun build ./src/build-db-migrations.ts --outdir dist-cli --format esm --target bun --minify",
     "test:unit": "bun test --test-name-pattern 'DBH Init'",
     "test": "bun run test:unit",
-    "test:e2e": "bun test ./src/tests/e2e/",
+    "test:e2e": "bun test ./src/tests/e2e/ConnectToLocalDatabase.test.ts && bun test ./src/tests/e2e/MigrateUpAndDown.test.ts",
+    "test:e2e:cli": "/bin/bash ./tests/run_cli_e2e_tests.sh",
     "test:build-db-migrations": "/bin/bash ./tests/run_build_example_migrations_test.sh",
     "cleanup:compiled_tests_in_dist_directory": "find ./dist -type f \\( -name \"*.test.js\" -o -name \"*.test.js.map\" -o -name \"*.test.d.ts\" \\) -delete",
     "cleanup:rm_tests_dir": "rm -rf ./dist/tests",

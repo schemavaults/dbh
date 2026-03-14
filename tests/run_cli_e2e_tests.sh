@@ -10,7 +10,7 @@ if [ ! -f docker-compose.yml ]; then
     echo "Error: docker-compose.yml for test environment not found!" >&2
 fi
 
-docker compose --profile e2e up \
- --exit-code-from test-runner \
+docker compose --profile cli up \
+ --exit-code-from cli-test-runner \
  --force-recreate \
  --build
