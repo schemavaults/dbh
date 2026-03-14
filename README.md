@@ -20,7 +20,7 @@ Ensure that you have both `postgres` and a `postgres-ws-proxy` containers runnin
 
 You'll likely want to replace the `build:` sections for the services in the e2e test example `.yml` file with `image:`. For example, use `image: postgres:17.7` for the `postgres` service. For the proxy, you can pull the docker image from `ghcr.io/schemavaults/dbh/postgres-ws-proxy`; use the version number equal to your `@schemavaults/dbh` npm package installation:
 ```md
-# NPM Package: @schemavaults/dbh@0.8.6 => ghcr.io/schemavaults/dbh/postgres-ws-proxy:0.8.6
+# NPM Package: @schemavaults/dbh@0.8.7 => ghcr.io/schemavaults/dbh/postgres-ws-proxy:0.8.7
 ```
 
 ### In your application server code
@@ -36,7 +36,7 @@ You may need to define a custom `WsProxyUrlGenerator` function to determine how 
 #### CLI Help Command
 ```bash
 # run migrations (and more) from the cli
-bunx @schemavaults/dbh --help
+npx @schemavaults/dbh --help
 # or `bun run cli --help` if you have the dbh source repository as your working directory
 ```
 
@@ -45,10 +45,13 @@ bunx @schemavaults/dbh --help
 mkdir ./tests/tmp
 
 # compile TypeScript Kysely migrations to JavaScript
-bunx @schemavaults/dbh build-db-migrations ./src/tests/example-migrations \
+npx @schemavaults/dbh build-db-migrations ./src/tests/example-migrations \
   --outdir ./tests/tmp/example-compiled-migrations \
   --sql-module ./src/sql.ts \
   --sql-outdir ./tests/tmp/
+
+# apply built migrations to database
+npx @schemavaults/dbh migrate ./tests/tmp/example-compiled-migrations --environment production --env-file ./.env.production
   
 rm -rf ./tests/tmp
 ```
