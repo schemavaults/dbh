@@ -44,13 +44,13 @@ npx @schemavaults/dbh --help
 ```bash
 mkdir ./tests/tmp
 
-# compile TypeScript Kysely migrations to JavaScript
-npx @schemavaults/dbh build-db-migrations ./src/tests/example-migrations \
+# compile TypeScript Kysely migrations to JavaScript (Bun is used for building migrations)
+bunx @schemavaults/dbh build-db-migrations ./src/tests/example-migrations \
   --outdir ./tests/tmp/example-compiled-migrations \
   --sql-module ./src/sql.ts \
   --sql-outdir ./tests/tmp/
 
-# apply built migrations to database
+# apply built migrations to database (NodeJS is used for applying migrations)
 npx @schemavaults/dbh migrate ./tests/tmp/example-compiled-migrations --environment production --env-file ./.env.production
   
 rm -rf ./tests/tmp
