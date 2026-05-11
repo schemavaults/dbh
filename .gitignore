@@ -13,3 +13,5 @@ node_modules/
 
 schemavaults-dbh-*.tgz
 schemavaults-dbh.tgz
+
+.claude/settings.local.json
