@@ -1,5 +1,7 @@
 // index.ts
 
+export { default as default, default as createDbh } from "./create-dbh";
+
 // Postgres Neon Proxy Adapter (for use in serverless environments)
 export { SchemaVaultsPostgresNeonProxyAdapter } from "@/adapters/schemavaults-postgres-neon-proxy-adapter";
 export type {
