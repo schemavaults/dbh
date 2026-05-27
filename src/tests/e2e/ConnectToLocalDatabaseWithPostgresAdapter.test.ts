@@ -83,7 +83,7 @@ describe("ConnectToLocalDatabaseWithPostgresAdapter", () => {
     async function createTable(
       dbh: SchemaVaultsPostgresAdapter<TestDatabaseType>,
     ): Promise<void> {
-      await sql`CREATE TABLE IF NOT EXISTS people (
+      await sql`CREATE TABLE IF NOT EXISTS zombies (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL
       );`.execute(dbh.db);
