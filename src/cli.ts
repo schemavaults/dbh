@@ -47,7 +47,7 @@ dbhCli
       }
 
       const resolvedFolder = path.resolve(folder);
-      const adapter = new SchemaVaultsPostgresNeonProxyAdapter<any>({
+      const adapter = new SchemaVaultsPostgresNeonProxyAdapter<object>({
         environment: opts.environment as SchemaVaultsAppEnvironment,
         wsProxyUrl: opts.wsProxyUrl,
       });
@@ -97,7 +97,7 @@ dbhCli
       }
 
       const resolvedFolder = path.resolve(folder);
-      const adapter = new SchemaVaultsPostgresNeonProxyAdapter<any>({
+      const adapter = new SchemaVaultsPostgresNeonProxyAdapter<object>({
         environment: opts.environment as SchemaVaultsAppEnvironment,
         wsProxyUrl: opts.wsProxyUrl,
       });
