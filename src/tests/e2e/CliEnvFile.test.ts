@@ -2,13 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
-import SchemaVaultsPostgresNeonProxyAdapter from "@/schemavaults-postgres-neon-proxy-adapter";
+import SchemaVaultsPostgresNeonProxyAdapter from "@/adapters/schemavaults-postgres-neon-proxy-adapter";
 import { sql } from "@/sql";
 
-class DBH
-  extends SchemaVaultsPostgresNeonProxyAdapter<any>
-  implements AsyncDisposable
-{
+class DBH extends SchemaVaultsPostgresNeonProxyAdapter<any> {
   public constructor() {
     super({
       credentials: {
@@ -107,9 +104,7 @@ describe("CliEnvFile", () => {
 
       // Verify table exists
       await using adapter = new DBH();
-      expect(
-        await doesTableExist(adapter.db, "example_squirrels"),
-      ).toBeTrue();
+      expect(await doesTableExist(adapter.db, "example_squirrels")).toBeTrue();
 
       // Run reverse via CLI with --env-file
       const reverseResult = await runCli([

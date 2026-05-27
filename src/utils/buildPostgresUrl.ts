@@ -1,4 +1,4 @@
-import type { BaseInitializablePostgresDatabaseCredentials } from "@/PostgresDatabaseCredentials";
+import type { BaseInitializablePostgresDatabaseCredentials } from "@/types/PostgresDatabaseCredentials";
 
 function buildPostgresUrl(
   opts: Pick<

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import SchemaVaultsPostgresNeonProxyAdapter from "@/schemavaults-postgres-neon-proxy-adapter";
+import SchemaVaultsPostgresNeonProxyAdapter from "@/adapters/schemavaults-postgres-neon-proxy-adapter";
 import { sql } from "@/sql";
 import { migrate, reverse } from "@/migrate";
 import path from "path";

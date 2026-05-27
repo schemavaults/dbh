@@ -1,4 +1,4 @@
-import type { PostgresDatabaseCredentials } from "@/PostgresDatabaseCredentials";
+import type { PostgresDatabaseCredentials } from "@/types/PostgresDatabaseCredentials";
 import parseDatabaseCredentials from "./parseDatabaseCredentials";
 
 export function parseDatabaseCredentialsFromEnv(

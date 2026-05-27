@@ -20,12 +20,12 @@ Ensure that you have both `postgres` and a `postgres-ws-proxy` containers runnin
 
 You'll likely want to replace the `build:` sections for the services in the e2e test example `.yml` file with `image:`. For example, use `image: postgres:17.7` for the `postgres` service. For the proxy, you can pull the docker image from `ghcr.io/schemavaults/dbh/postgres-ws-proxy`; use the version number equal to your `@schemavaults/dbh` npm package installation:
 ```md
-# NPM Package: @schemavaults/dbh@0.8.8 => ghcr.io/schemavaults/dbh/postgres-ws-proxy:0.8.8
+# NPM Package: @schemavaults/dbh@0.9.0 => ghcr.io/schemavaults/dbh/postgres-ws-proxy:0.9.0
 ```
 
 ### In your application server code
 
-Set up an adapter.
+Set up an adapter based on your requirements (whether you need serverless/edge access to the database or whether using a standard ).
 
 For an example, see the e2e test file: [./src/tests/e2e/ConnectToLocalDatabase.test.ts](./src/tests/e2e/ConnectToLocalDatabase.test.ts)
 

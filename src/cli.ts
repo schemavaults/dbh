@@ -3,9 +3,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { execSync, spawn } from "child_process";
-import { SchemaVaultsPostgresNeonProxyAdapter } from "@/schemavaults-postgres-neon-proxy-adapter";
+import { SchemaVaultsPostgresNeonProxyAdapter } from "@/adapters/schemavaults-postgres-neon-proxy-adapter";
 import { migrate, reverse } from "@/migrate";
-import type { SchemaVaultsAppEnvironment } from "@/SchemaVaultsAppEnvironment";
+import type { SchemaVaultsAppEnvironment } from "@/types/SchemaVaultsAppEnvironment";
 import { loadEnvFile } from "@/utils/loadEnvFile";
 
 const require = createRequire(import.meta.url);
@@ -174,10 +174,7 @@ dbhCli
 
       // Resolve path to build script relative to this CLI file
       const __dirname = path.dirname(fileURLToPath(import.meta.url));
-      const buildScriptPath = path.resolve(
-        __dirname,
-        "build-db-migrations.js",
-      );
+      const buildScriptPath = path.resolve(__dirname, "build-db-migrations.js");
 
       // Build args to forward
       const args: string[] = ["run", buildScriptPath, migrationsSrc];

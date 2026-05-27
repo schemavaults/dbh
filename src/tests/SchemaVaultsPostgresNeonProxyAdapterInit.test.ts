@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import SchemaVaultsPostgresNeonProxyAdapter from "@/schemavaults-postgres-neon-proxy-adapter";
+import SchemaVaultsPostgresNeonProxyAdapter from "@/adapters/schemavaults-postgres-neon-proxy-adapter";
 
-describe("DBH Init", () => {
+describe("SchemaVaultsPostgresNeonProxyAdapter", () => {
   test("should export the SchemaVaultsPostgresNeonProxyAdapter", () => {
     expect(SchemaVaultsPostgresNeonProxyAdapter).toBeDefined();
   });
 
-  test("should initialize a dbh instance without an error", () => {
+  test("should initialize a SchemaVaultsPostgresNeonProxyAdapter instance without an error", () => {
     const dbh = new SchemaVaultsPostgresNeonProxyAdapter({
       environment: "test",
       credentials: {

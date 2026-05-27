@@ -1,7 +1,7 @@
 import {
   isValidAppEnvironment,
   type SchemaVaultsAppEnvironment,
-} from "@/SchemaVaultsAppEnvironment";
+} from "@/types/SchemaVaultsAppEnvironment";
 
 export interface IGetPostgresNeonWsProxyUrlOpts {
   pg_host: string;

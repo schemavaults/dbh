@@ -1,4 +1,7 @@
-import { isValidAppEnvironment, type SchemaVaultsAppEnvironment } from "@/SchemaVaultsAppEnvironment";
+import {
+  isValidAppEnvironment,
+  type SchemaVaultsAppEnvironment,
+} from "@/types/SchemaVaultsAppEnvironment";
 
 export function getAppEnvironment(): SchemaVaultsAppEnvironment {
   const env = process.env["SCHEMAVAULTS_APP_ENVIRONMENT"];

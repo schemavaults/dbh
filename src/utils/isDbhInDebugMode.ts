@@ -1,9 +1,9 @@
-import type { SchemaVaultsAppEnvironment } from "@/SchemaVaultsAppEnvironment";
+import type { SchemaVaultsAppEnvironment } from "@/types/SchemaVaultsAppEnvironment";
 
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
-      SCHEMAVAULTS_DBH_DEBUG?: 'true' | 'false';
+      SCHEMAVAULTS_DBH_DEBUG?: "true" | "false";
     }
   }
 }

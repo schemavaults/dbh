@@ -1,7 +1,7 @@
 import type {
   BaseInitializablePostgresDatabaseCredentials,
   PostgresDatabaseCredentials,
-} from "@/PostgresDatabaseCredentials";
+} from "@/types/PostgresDatabaseCredentials";
 import maybeStripQuotes from "@/utils/maybeStripQuotes";
 import buildPostgresUrl from "./buildPostgresUrl";
 
