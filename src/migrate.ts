@@ -1,11 +1,11 @@
 // migrate.ts
 
+import type { Kysely } from "kysely";
 import {
-  Kysely,
   Migrator,
   FileMigrationProvider,
   type MigrationResultSet,
-} from "kysely";
+} from "kysely/migration";
 import fs from "fs/promises";
 import path from "path";
 import { existsSync } from "fs";
