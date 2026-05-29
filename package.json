@@ -1,6 +1,6 @@
 {
   "name": "@schemavaults/dbh",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Easily connect to PostgresDB from serverless environment",
   "license": "UNLICENSED",
   "private": false,
@@ -86,6 +86,11 @@
       "types": "./dist/cli.d.ts",
       "import": "./dist-cli/cli.js",
       "require": "./dist-cli/cli.js"
+    },
+    "./create-dbh": {
+      "types": "./dist/create-dbh.d.ts",
+      "import": "./dist-cli/create-dbh.js",
+      "require": "./dist-cli/create-dbh.js"
     },
     "./build-db-migrations": {
       "import": "./dist-cli/build-db-migrations.js",
