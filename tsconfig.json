@@ -20,6 +20,9 @@
     "baseUrl": ".",
     "rootDir": "src",
   },
+  "tsc-alias": {
+    "resolveFullPaths": true,
+  },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "dist-cli"],
 }
