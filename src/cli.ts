@@ -7,6 +7,7 @@ import { SchemaVaultsPostgresNeonProxyAdapter } from "@/adapters/schemavaults-po
 import { migrate, reverse } from "@/migrate";
 import type { SchemaVaultsAppEnvironment } from "@/types/SchemaVaultsAppEnvironment";
 import { loadEnvFile } from "@/utils/loadEnvFile";
+import { validateMigrationDirectory } from "@/utils/validateMigrationDirectory";
 
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json") as { version: string };
@@ -198,6 +199,58 @@ dbhCli
       child.on("close", (code) => {
         process.exit(code ?? 1);
       });
+    },
+  );
+
+dbhCli
+  .command("validate-migration-directory")
+  .alias("validate")
+  .description(
+    "Validate the shape of a migrations directory (5-digit prefixes, up()/down() exports, no duplicate numbers)",
+  )
+  .argument("<folder>", "Path to the migrations directory")
+  .option(
+    "--duplicates-as-warnings",
+    "Report duplicate migration numbers as warnings instead of errors",
+  )
+  .action(
+    async (folder: string, opts: { duplicatesAsWarnings?: boolean }) => {
+      const resolvedFolder = path.resolve(folder);
+
+      let result;
+      try {
+        result = await validateMigrationDirectory(resolvedFolder, {
+          duplicatesAsWarnings: opts.duplicatesAsWarnings,
+        });
+      } catch (error) {
+        console.error("Failed to validate migration directory:", error);
+        process.exit(1);
+      }
+
+      for (const issue of result.issues) {
+        const prefix = issue.level === "error" ? "ERROR" : "WARN";
+        console.error(`[${prefix}] ${issue.message}`);
+      }
+
+      if (result.ok) {
+        const warningCount = result.issues.filter(
+          (i) => i.level === "warning",
+        ).length;
+        console.log(
+          `✓ Migration directory is valid (${result.migrationFiles.length} migration${
+            result.migrationFiles.length === 1 ? "" : "s"
+          } checked${warningCount > 0 ? `, ${warningCount} warning(s)` : ""}): ${result.directory}`,
+        );
+        process.exit(0);
+      } else {
+        const errorCount = result.issues.filter(
+          (i) => i.level === "error",
+        ).length;
+        console.error(
+          `✗ Migration directory is invalid (${errorCount} error(s)): ${result.directory}`,
+        );
+        process.exit(1);
+      }
     },
   );
 
