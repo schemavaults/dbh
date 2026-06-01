@@ -34,7 +34,7 @@
     "build:pkg": "tsc --project tsconfig.json && tsc-alias --project tsconfig.json",
     "build:cli": "bun build ./src/cli.ts --outdir dist-cli --format esm --target node --minify && echo '#!/usr/bin/env node' | cat - dist-cli/cli.js > dist-cli/cli.tmp && mv dist-cli/cli.tmp dist-cli/cli.js",
     "build:build-db-migrations": "bun build ./src/build-db-migrations.ts --outdir dist-cli --format esm --target bun --minify",
-    "test:unit": "bun test ./src/tests/SchemaVaultsPostgresAdapterInit.test.ts && bun test src/tests/SchemaVaultsPostgresNeonProxyAdapterInit.test.ts",
+    "test:unit": "bun test ./src/tests/SchemaVaultsPostgresAdapterInit.test.ts && bun test src/tests/SchemaVaultsPostgresNeonProxyAdapterInit.test.ts && bun test ./src/tests/ValidateMigrationDirectory.test.ts",
     "test": "bun run test:unit",
     "test:e2e": "bun test ./src/tests/e2e/ConnectToLocalDatabaseWithPostgresAdapter.test.ts && bun test ./src/tests/e2e/ConnectToLocalDatabaseWithPostgresNeonProxyAdapter.test.ts && bun test ./src/tests/e2e/MigrateUpAndDown.test.ts",
     "test:e2e:cli": "/bin/bash ./tests/run_cli_e2e_tests.sh",

@@ -40,6 +40,20 @@ npx @schemavaults/dbh --help
 # or `bun run cli --help` if you have the dbh source repository as your working directory
 ```
 
+#### Validate the shape of a migrations directory
+```bash
+# assert the migrations directory is well-formed:
+#  - non-empty
+#  - every file is prefixed with a 5-digit migration number (e.g. 00000-my-migration.ts)
+#  - every module exports an up() and down() function
+#  - there are no duplicate migration numbers (branch collisions, e.g. 00040-a.ts and 00040-b.ts)
+# exits 0 when the directory is valid, non-zero otherwise.
+bunx @schemavaults/dbh validate-migration-directory ./src/db/migrations
+
+# treat duplicate migration numbers as warnings instead of errors (still exits 0)
+bunx @schemavaults/dbh validate-migration-directory ./src/db/migrations --duplicates-as-warnings
+```
+
 #### Build example database migrations with the CLI
 ```bash
 mkdir ./tests/tmp
