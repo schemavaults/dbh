@@ -11,9 +11,11 @@ is a numbered module that exports an `up()` and a `down()` function. TypeScript
 source migrations are **built** to JavaScript first, then **applied** with the
 CLI.
 
-Invoke the CLI with your package runner — `bunx @schemavaults/dbh <command>` or
-`npx @schemavaults/dbh <command>`. The examples below use `bunx`; substitute
-`npx` if you prefer npm.
+Invoke the CLI with your package runner. Use **`bunx @schemavaults/dbh`** for
+**validating and building** migrations — `build-db-migrations` uses Bun's
+bundler and requires Bun anyway. Use **`npx @schemavaults/dbh`** for **running /
+applying** migrations (`migrate` and `reverse`): most PostgreSQL drivers are
+built for Node.js rather than Bun, so apply migrations on the Node runtime.
 
 ## One-time setup (for consumers)
 
@@ -186,17 +188,18 @@ Key options:
 
 Apply built migrations with `migrate`, and roll back with `reverse`. Both take
 the **built** migration folder and require an `--environment`; credentials come
-from `process.env` (or an `--env-file`).
+from `process.env` (or an `--env-file`). Run these with **`npx`** (Node.js):
+most PostgreSQL drivers target Node rather than Bun.
 
 ```bash
 # Apply all pending migrations (to latest):
-bunx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
+npx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
 
 # Apply up to a specific version (the migration name w/o extension):
-bunx @schemavaults/dbh migrate ./dist/migrations 00001-create-users-table --environment staging
+npx @schemavaults/dbh migrate ./dist/migrations 00001-create-users-table --environment staging
 
 # Roll back down to a target version:
-bunx @schemavaults/dbh reverse ./dist/migrations 00000-template-migration --environment staging
+npx @schemavaults/dbh reverse ./dist/migrations 00000-template-migration --environment staging
 ```
 
 Options for `migrate` / `reverse`:
@@ -230,8 +233,8 @@ bunx @schemavaults/dbh validate-migration-directory ./src/db/migrations
 bunx @schemavaults/dbh build-db-migrations ./src/db/migrations \
   --outdir ./dist/migrations --sql-module ./src/db/sql.ts --sql-outdir ./dist
 
-# 3. Apply the built migrations.
-bunx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
+# 3. Apply the built migrations (npx / Node.js — pg drivers target Node).
+npx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
 ```
 
 ## Required environment variables (for migrate/reverse)
