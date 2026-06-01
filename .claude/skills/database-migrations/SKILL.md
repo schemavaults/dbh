@@ -79,8 +79,13 @@ export async function down(db: Kysely<any>): Promise<void> {
 }
 ```
 
-> Note: outside the repo, `sql` is imported from `@schemavaults/dbh/sql` instead
-> of `@/sql`. The `@/sql` alias only resolves inside this repo's source.
+> Important: migrations must **always** import `sql` from `@/sql` — even in
+> external/consumer repos. The `build-db-migrations` step rewrites the literal
+> `@/sql` import specifier to a relative path pointing at the built `sql.js`, so
+> the import must be written exactly as `@/sql` for the build to work. This means
+> external consumers must configure the `@/sql` path alias locally (e.g. in their
+> `tsconfig.json` `paths`) so their migration sources typecheck. Do **not** import
+> `sql` from `@schemavaults/dbh/sql` in migration files.
 
 ### Empty template migration
 
