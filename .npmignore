@@ -44,3 +44,6 @@ postgres-ws-proxy/
 schemavaults-dbh.tgz
 
 .zed/
+
+.claude/
+CLAUDE.md
