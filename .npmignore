@@ -47,3 +47,8 @@ schemavaults-dbh.tgz
 
 .claude/
 CLAUDE.md
+
+eslint.config.cjs
+eslint.config.js
+eslint.config.ts
+eslint.config.mjs
