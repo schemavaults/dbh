@@ -1,19 +1,55 @@
 ---
 name: database-migrations
-description: Authoring, building, validating, and running database migrations in the @schemavaults/dbh repo. Use when creating or editing Kysely migration files, when working in a migrations/ directory, when a migration must be built/compiled or applied, or when the user mentions migrations, up()/down(), schema changes, or the dbh CLI's migrate/build-db-migrations/validate-migration-directory commands.
+description: Authoring, building, validating, and running PostgreSQL database migrations with the @schemavaults/dbh package. Use when a project depends on @schemavaults/dbh and you are creating or editing Kysely migration files, setting up a migrations/ directory, or when the user mentions migrations, up()/down(), schema changes, or the dbh CLI's migrate / build-db-migrations / validate-migration-directory commands.
 ---
 
-# Database Migrations (@schemavaults/dbh)
+# Database Migrations with @schemavaults/dbh
 
-This repo uses [Kysely](https://kysely.dev/) migrations, applied through the
-`dbh` CLI. Migrations are opinionated: every file is a numbered module that
-exports an `up()` and a `down()` function. TypeScript source migrations are
-**built** to JavaScript first, then **applied** with the CLI.
+`@schemavaults/dbh` provides [Kysely](https://kysely.dev/) migrations for
+PostgreSQL, applied through the `dbh` CLI. Migrations are opinionated: every file
+is a numbered module that exports an `up()` and a `down()` function. TypeScript
+source migrations are **built** to JavaScript first, then **applied** with the
+CLI.
+
+Invoke the CLI with your package runner — `bunx @schemavaults/dbh <command>` or
+`npx @schemavaults/dbh <command>`. The examples below use `bunx`; substitute
+`npx` if you prefer npm.
+
+## One-time setup (for consumers)
+
+Migrations import the `sql` template tag from `@/sql` rather than directly from
+the package. This indirection is required by the build step (see the note under
+"Building migrations"), so configure it once:
+
+1. **Create a local `sql` module** somewhere in your source tree, e.g.
+   `./src/db/sql.ts`, that re-exports the tag from the package:
+
+   ```ts
+   // src/db/sql.ts
+   export { sql, sql as default } from "@schemavaults/dbh/sql";
+   export type * from "@schemavaults/dbh/sql";
+   ```
+
+2. **Configure the `@/sql` path alias** in your `tsconfig.json` so migration
+   sources typecheck and resolve:
+
+   ```jsonc
+   {
+     "compilerOptions": {
+       "baseUrl": ".",
+       "paths": {
+         "@/sql": ["./src/db/sql.ts"]
+       }
+     }
+   }
+   ```
+
+3. **Create a migrations directory**, e.g. `./src/db/migrations/`, and add your
+   numbered migration files there.
 
 ## Migration file format
 
-Each migration is a single file in a migrations directory (e.g.
-`./src/db/migrations/`). The rules are:
+Each migration is a single file in your migrations directory. The rules are:
 
 1. **The directory is non-empty.**
 2. **Each file name is prefixed with a 5-digit migration number**, followed by a
@@ -26,6 +62,7 @@ Each migration is a single file in a migrations directory (e.g.
    before merge.
 
 Both `up` and `down` receive a `Kysely<any>` instance and return a `Promise`.
+Import the `Kysely` type from the package: `import type { Kysely } from "@schemavaults/dbh"`.
 
 ### Example: using the `Kysely<any>` query builder
 
@@ -52,10 +89,11 @@ export async function down(db: Kysely<any>): Promise<void> {
 ### Example: using the `sql` template tag
 
 For statements the builder can't express (or raw DDL), import `sql` from
-`@/sql` (which re-exports Kysely's `sql` tag) and call `.execute(db)`:
+`@/sql` (your local module from setup, which re-exports Kysely's `sql` tag) and
+call `.execute(db)`:
 
 ```ts
-// 00002-add-users-index.ts
+// 00002-create-squirrels-table.ts
 import type { Kysely } from "@schemavaults/dbh";
 import { sql } from "@/sql";
 
@@ -79,13 +117,11 @@ export async function down(db: Kysely<any>): Promise<void> {
 }
 ```
 
-> Important: migrations must **always** import `sql` from `@/sql` — even in
-> external/consumer repos. The `build-db-migrations` step rewrites the literal
-> `@/sql` import specifier to a relative path pointing at the built `sql.js`, so
-> the import must be written exactly as `@/sql` for the build to work. This means
-> external consumers must configure the `@/sql` path alias locally (e.g. in their
-> `tsconfig.json` `paths`) so their migration sources typecheck. Do **not** import
-> `sql` from `@schemavaults/dbh/sql` in migration files.
+> Important: migration files must **always** import `sql` from `@/sql`, never
+> directly from `@schemavaults/dbh/sql`. The `build-db-migrations` step rewrites
+> the literal `@/sql` import specifier to a relative path pointing at the built,
+> standalone `sql.js`, so the import must be written exactly as `@/sql` for the
+> build to work. (This is why the one-time setup configures the `@/sql` alias.)
 
 ### Empty template migration
 
@@ -106,14 +142,12 @@ export async function down(
 
 ## Validating migrations
 
-Before building or applying, assert the directory is well-formed. The
-`validate-migration-directory` command checks all four rules above and exits `0`
-when valid, non-zero otherwise (good for CI / pre-commit):
+Before building or applying, assert your source migrations directory is
+well-formed. The `validate-migration-directory` command checks all four rules
+above and exits `0` when valid, non-zero otherwise (good for CI / pre-commit):
 
 ```bash
 bunx @schemavaults/dbh validate-migration-directory ./src/db/migrations
-# locally in this repo:
-bun run cli validate-migration-directory ./src/tests/example-migrations
 ```
 
 It reports each problem with an `[ERROR]`/`[WARN]` prefix:
@@ -128,29 +162,25 @@ Treat duplicate numbers as warnings (non-fatal) with `--duplicates-as-warnings`.
 
 TypeScript migrations must be compiled to JavaScript before they're applied
 (the `migrate` step runs on Node and imports `.js`). The `build-db-migrations`
-command uses Bun's bundler and also builds the `sql` module the migrations
-depend on:
+command uses Bun's bundler and also builds the standalone `sql` module the
+migrations depend on. Point `--sql-module` at the local `sql.ts` you created
+during setup:
 
 ```bash
 bunx @schemavaults/dbh build-db-migrations ./src/db/migrations \
   --outdir ./dist/migrations \
-  --sql-module ./src/sql.ts \
+  --sql-module ./src/db/sql.ts \
   --sql-outdir ./dist
-# locally in this repo:
-bun run cli build-db-migrations ./src/tests/example-migrations \
-  --outdir ./tests/tmp/migrations \
-  --sql-module ./src/sql.ts \
-  --sql-outdir ./tests/tmp
 ```
 
 Key options:
 - `<migrations-src>` — directory of `.ts` migration sources (positional).
 - `--outdir <dir>` — where compiled `.js` migrations are written (required).
-- `--sql-module <path>` — path to the `sql.ts` module to build alongside (required).
+- `--sql-module <path>` — path to your local `sql.ts` module to build alongside (required).
 - `--sql-outdir <dir>` — where the built `sql.js` goes (defaults to the parent of `--outdir`).
 - `--external <pkg...>` — packages to keep external (default: `@schemavaults/dbh`, `kysely`).
 
-`build-db-migrations` requires `bun` to be on the PATH.
+`build-db-migrations` requires `bun` to be installed and on the PATH.
 
 ## Running migrations
 
@@ -160,13 +190,13 @@ from `process.env` (or an `--env-file`).
 
 ```bash
 # Apply all pending migrations (to latest):
-npx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
+bunx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
 
 # Apply up to a specific version (the migration name w/o extension):
-npx @schemavaults/dbh migrate ./dist/migrations 00001-create-users-table --environment staging
+bunx @schemavaults/dbh migrate ./dist/migrations 00001-create-users-table --environment staging
 
 # Roll back down to a target version:
-npx @schemavaults/dbh reverse ./dist/migrations 00000-template-migration --environment staging
+bunx @schemavaults/dbh reverse ./dist/migrations 00000-template-migration --environment staging
 ```
 
 Options for `migrate` / `reverse`:
@@ -181,7 +211,7 @@ Each result line prints as `[Up|Down] <migrationName>: <Success|Error|NotExecute
 ### Programmatic API
 
 The same operations are available from `@schemavaults/dbh/migrate` for tests or
-custom scripts:
+custom scripts, using the adapter's Kysely instance:
 
 ```ts
 import { migrate, reverse } from "@schemavaults/dbh/migrate";
@@ -194,14 +224,14 @@ await reverse({ db: adapter.db, migrationFolder, version });
 
 ```bash
 # 1. Validate the source migrations directory.
-bun run cli validate-migration-directory ./src/db/migrations
+bunx @schemavaults/dbh validate-migration-directory ./src/db/migrations
 
 # 2. Build .ts migrations (+ sql module) to .js.
-bun run cli build-db-migrations ./src/db/migrations \
-  --outdir ./dist/migrations --sql-module ./src/sql.ts --sql-outdir ./dist
+bunx @schemavaults/dbh build-db-migrations ./src/db/migrations \
+  --outdir ./dist/migrations --sql-module ./src/db/sql.ts --sql-outdir ./dist
 
 # 3. Apply the built migrations.
-npx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
+bunx @schemavaults/dbh migrate ./dist/migrations --environment production --env-file ./.env.production
 ```
 
 ## Required environment variables (for migrate/reverse)
