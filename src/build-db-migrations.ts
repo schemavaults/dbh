@@ -189,10 +189,13 @@ buildDbMigrations
         }
       }
 
-      // Print summary
+      // Print summary (sorted by filename — this is the order migrations apply in)
       console.log("");
       console.log("Built migrations:");
-      for (const migration of migrationsResult.outputs) {
+      const sortedOutputs = [...migrationsResult.outputs].sort((a, b) =>
+        basename(a.path).localeCompare(basename(b.path)),
+      );
+      for (const migration of sortedOutputs) {
         console.log(`  - ${basename(migration.path)} (${migration.size} bytes)`);
       }
       console.log("");
